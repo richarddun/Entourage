@@ -1,7 +1,7 @@
 #:kivy 2.2.0
 
 <ChattorFlow>:  
-    BoxLayout:
+    FloatLayout:
         # For some reason have to dunk
         # a BoxLayout to snarf up all
         # the available space or this
@@ -9,9 +9,10 @@
         # it took me an hour to get here
         # don't judge me
         size: root.width, root.height
-        orientation: 'vertical'
         GridLayout:
-            size_hint: .16,1
+            size_hint_x : .2
+            size_hint_y : 1
+            pos_hint: {'left':1,'right':.2}
             rows:3
             cols:0
             Button:
@@ -20,11 +21,19 @@
                 text: 'b2'
             Button:
                 text: 'b3'
-        BoxLayout:
-            orientation:'vertical'
-            Label:
-                id:'mylabel'
-                text: 'Label Text here...'
-            TextInput:
-                id: 'mytextinput'
-                text: 'Textinput text here...'
+        Label:
+            id: 'outputwidget'
+            pos_hint: {'left':.8,'right':1}
+            size_hint_x: .8
+            size_hint_y: .7
+            id:'mylabel'
+            text: 'Label Text here...'
+        TextInput:
+            id: 'inputwidget'
+            pos_hint: {'left':.8,'right':1}
+            size_hint_x: .8
+            size_hint_y: .3
+
+            #pos_hint: ('x':.)
+            id: 'mytextinput'
+            text: 'Textinput text here...'
