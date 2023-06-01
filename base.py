@@ -1,5 +1,5 @@
 from kivy.app import App
-from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 from kivy.core.window import Window
 
 class ChattorApp(App):
@@ -8,11 +8,13 @@ class ChattorApp(App):
     
     def submit(self):
         self.print_widget_properties()
+        pass
 
     def print_widget_properties(self):
-        self.root.ids.outputwidget.text += self.root.ids.inputwidget.text
+        #print(self.root.ids)
+        self.root.ids.outputwidget.text += (self.root.ids.inputwidget.text + "\n")
 
-class ChattorFlow(Widget):
+class ChattorFlow(FloatLayout):
     pass
 
 if __name__ == "__main__":

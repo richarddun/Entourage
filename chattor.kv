@@ -1,54 +1,24 @@
 #:kivy 2.2.0
 
-<ChattorFlow>:  
-    FloatLayout:
-        size: root.width, root.height
-        id: floater
-        GridLayout:
-            size_hint_x : .2
-            size_hint_y : 1
-            pos_hint: {'left':1,'right':.2}
-            rows:3
-            cols:0
-            Button:
-                text: 'b1'
-            Button:
-                text: 'b2'
-            Button:
-                text: 'b3'
-        ScrollView:
-            do_scroll_x: False
-            do_scroll_y: True
-            scroll_type: ['bars', 'content']
-            Label:
-                id: outputwidget
-                pos_hint: {'left':.8,'bottom':.6}
-                size: self.texture_size
-                text_size: self.width, None
-                size_hint_x: .8
-                size_hint_y: None
-                height: 1000
-                #halign: 'left'
-                #valign: 'middle'
-                #id:'mylabel'
-                text: 'waiting for input...'
+<ChattorFlow>:
+
+    BoxLayout:
+        orientation:'vertical'
+        pos_hint:{'top':1,'left':1}
+
+        TextInput:
+            id: outputwidget
+            text: 'waiting for input...'
+            readonly: True
+            background_color: 0.494, 0.749, 0.749, 0.8
+
         TextInput:
             id: inputwidget
-            pos_hint: {'left':.8,'right':.92}
-            size_hint_x: .72
-            size_hint_y: .2
-            #on_text: app.process()
-            #id: 'mytextinput'
             text: 'Textinput text here...'
-        Button:
-            id: submitter
-            text: 'Submit'
-            pos_hint: {'bottom':0,'right':1}
-            size_hint_x: .08
-            size_hint_y: .08
-            on_press: app.submit()
-        #Button:
-        #    text: 'Voice'
-        #    pos_hint: {'bottom':1,'right':1}
-        #    size_hint_x: .08
-        #    size_hint_y: .08
+
+    Button:
+        id: submitter
+        text: 'Submit'
+        pos_hint: {'right': 1, 'bottom': 1}
+        size_hint: (.1, .1)
+        on_press: app.submit()
