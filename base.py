@@ -28,6 +28,7 @@ class AICommunicator():
 class ChattorApp(App):
 
     def build(self):
+        self.cleared = False
         return ChattorFlow()
     
     def submit(self):
@@ -38,6 +39,12 @@ class ChattorApp(App):
 
     def submit_wrapper(self):
         Clock.schedule_once(lambda dt: self.submit())
+    
+    def first_clear(self):
+        if self.cleared == False:
+            self.root.ids.inputwidget.text = ''
+            self.cleared = True
+        
 
 class ChattorFlow(FloatLayout):
     pass
