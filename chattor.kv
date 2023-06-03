@@ -15,10 +15,11 @@
         TextInput:
             id: inputwidget
             text: 'Textinput text here...'
+            background_color: 0.749, 0.733, 0.494, 0.8
 
     Button:
         id: submitter
         text: 'Submit'
         pos_hint: {'right': 1, 'bottom': 1}
         size_hint: (.1, .1)
-        on_press: app.submit()
+        on_press: app.submit_wrapper()
