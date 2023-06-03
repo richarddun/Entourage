@@ -2,21 +2,22 @@
 
 <ChattorFlow>:
 
-    BoxLayout:
-        orientation:'vertical'
+
+    TextInput:
+        id: outputwidget
         pos_hint:{'top':1,'left':1}
+        size_hint: 1,.7
+        text: 'waiting for input...'
+        readonly: True
+        background_color: 0.494, 0.749, 0.749, 0.8
 
-        TextInput:
-            id: outputwidget
-            text: 'waiting for input...'
-            readonly: True
-            background_color: 0.494, 0.749, 0.749, 0.8
-
-        TextInput:
-            id: inputwidget
-            text: 'Textinput text here...'
-            background_color: 0.749, 0.733, 0.494, 0.8
-            on_touch_down: app.first_clear()
+    TextInput:
+        id: inputwidget
+        pos_hint:{'bottom':1,'left':1}
+        size_hint: 1,.3
+        text: 'Textinput text here...'
+        background_color: 0.749, 0.733, 0.494, 0.8
+        on_touch_down: app.first_clear()
 
     Button:
         id: submitter
