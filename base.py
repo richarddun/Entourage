@@ -6,6 +6,7 @@ import openai
 import os
 import threading
 from kivy.clock import Clock
+from autrasyn import PollyInterface
 
 class AICommunicator():
 
@@ -35,6 +36,7 @@ class ChattorApp(App):
         self.cleared = False
         self.oai = AICommunicator()
         self.popup = Popup(title='Processing...', content=Label(text='Waiting for AI response...'), auto_dismiss=False, size_hint=(.8, .8))
+        self.speaker = PollyInterface()
         return ChattorFlow()
     
     def evaluate_thread(self, prompt):
@@ -44,6 +46,7 @@ class ChattorApp(App):
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
+        self.speaker.say(response)
 
     def submit(self):
         prompt = self.root.ids.inputwidget.text
