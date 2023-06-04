@@ -10,18 +10,32 @@
         text: 'waiting for input...'
         readonly: True
         background_color: 0.494, 0.749, 0.749, 0.8
+        use_bubble: True
 
     TextInput:
         id: inputwidget
         pos_hint:{'bottom':1,'left':1}
-        size_hint: 1,.3
+        size_hint: .9,.3
         text: 'Textinput text here...'
         background_color: 0.749, 0.733, 0.494, 0.8
         on_touch_down: app.first_clear()
+        #on_key_down: app.on_keyboard()
 
     Button:
         id: submitter
         text: 'Submit'
         pos_hint: {'right': 1, 'bottom': 1}
         size_hint: (.1, .1)
-        on_press: app.submit_wrapper()
+        on_press: app.submit()
+
+    Button:
+        id : vsession
+        text: 'vsession'
+        pos_hint: {'center_x': .95, 'center_y': .15}
+        size_hint: (.1,.1)
+    
+    Button:
+        id : switcher
+        text: 'switcher'
+        pos_hint: {'x':.9, 'y': .2}
+        size_hint: (.1,.1)

@@ -1,8 +1,10 @@
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
-from kivy.core.window import Window
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 import openai
 import os
+import threading
 from kivy.clock import Clock
 
 class AICommunicator():
@@ -25,7 +27,6 @@ class AICommunicator():
         messages = self.prompt_history
     )
         self.prompt_history.append({"role":"assistant","content":f"{response.choices[0].message.content.strip()}"})
-        print(self.prompt_history)
         return response.choices[0].message.content.strip()
 
 class ChattorApp(App):
@@ -33,16 +34,26 @@ class ChattorApp(App):
     def build(self):
         self.cleared = False
         self.oai = AICommunicator()
+        self.popup = Popup(title='Processing...', content=Label(text='Waiting for AI response...'), auto_dismiss=False, size_hint=(.8, .8))
         return ChattorFlow()
     
-    def submit(self):
-        #self.oai = AICommunicator()
-        response = self.oai.evaluate(self.root.ids.inputwidget.text)
-        #self.root.ids.outputwidget.text = '...Loading response'
-        self.root.ids.outputwidget.text = response
+    def evaluate_thread(self, prompt):
+        response = self.oai.evaluate(prompt)
+        Clock.schedule_once(lambda dt: self.on_response(response), 0)
 
-    def submit_wrapper(self):
-        Clock.schedule_once(lambda dt: self.submit())
+    def on_response(self, response):
+        self.root.ids.outputwidget.text = response
+        self.popup.dismiss()
+
+    def submit(self):
+        prompt = self.root.ids.inputwidget.text
+        threading.Thread(target=self.evaluate_thread, args=(prompt,)).start()
+        self.popup.open()
+
+    def on_keyboard(self, instance, key, scancode, codepoint, modifier):
+        if modifier == ['shift'] and codepoint == '\n':
+            # Add your text processing logic here
+            self.submit()
     
     def first_clear(self):
         if self.cleared == False:
