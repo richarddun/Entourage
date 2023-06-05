@@ -11,3 +11,4 @@ Features :
 - supports voice interface using openAI whisper and Amazon polly
 - performs two prompts in parallel, one for text (long form) and another summarised by gpt-3.5 meant for voice
 
+![](https://github.com/richarddun/gpt-client/blob/master/gpt-client.png)
