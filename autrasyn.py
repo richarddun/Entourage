@@ -5,21 +5,21 @@ from pydub import AudioSegment
 from pydub.playback import play
 import pyaudio
 import time 
-import keyboard
 
 # create Class to handle integration with Amazon Polly
 class PollyInterface():
     def __init__(self):
         # Create a Polly client
-        self.polly = boto3.client('polly',region_name='us-east-1')
+        self.polly = boto3.client('polly',region_name='eu-west-1')
 
     def say(self, text):
         # Synthesize speech from the input text.
+        # TODO - implement streaming
         response = self.polly.synthesize_speech(
             OutputFormat='mp3',
             Text=text,
             Engine='neural',
-            VoiceId='Niamh'
+            VoiceId='Emma'
         )
 
         # Save the audio stream to a .mp3 file
@@ -29,37 +29,32 @@ class PollyInterface():
         sound = AudioSegment.from_mp3("speech.mp3")
         play(sound)
 
-# Define the hotkey that will start recording
-hotkey = "ctrl+alt+r"
-
 class AudioInterface():
     def __init__(self):
         # Create a PyAudio object
         self.pa = pyaudio.PyAudio()
+        self.recording = False
     
-    def record_audio(self):
+    def stop_record_audio(self):
+        self.recording = False
+        print("Recording stopped.")
+
+    def start_record_audio(self):
         # Open a microphone stream
-        stream = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, input=True, frames_per_buffer=1024)
 
-        # Start recording
-        print("Press {} to start recording.".format(hotkey))
-        while not keyboard.is_pressed(hotkey):
-            time.sleep(0.1)
+        self.stream = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, input=True, frames_per_buffer=1024)#,
+        #                            input_device_index=1)
 
-        # Adding a small delay to give the user time to release the hotkey
-        time.sleep(0.5)
-
-        print("Recording started. Press {} to stop recording.".format(hotkey))
-        audio_data = []
-        while not keyboard.is_pressed(hotkey):
-            # Read audio data from the microphone
-            data = stream.read(1024)
-            audio_data.append(data)
-
+        self.recording = True
+        print("Recording started.")
+        self.audio_data = []
+        while self.recording:
+            self.data = self.stream.read(1024)
+            self.audio_data.append(self.data)
         # Stop recording
-        stream.stop_stream()
-        stream.close()
-        self.pa.terminate()
+        self.stream.stop_stream()
+        self.stream.close()
+        #self.pa.terminate()
 
         # generate the output file name based on epoch now
         output_file_name = str(time.time()) + ".wav"
@@ -70,7 +65,7 @@ class AudioInterface():
             f.setnchannels(2)
             f.setsampwidth(self.pa.get_sample_size(pyaudio.paInt16))
             f.setframerate(44100)
-            f.writeframes(b''.join(audio_data))
+            f.writeframes(b''.join(self.audio_data))
 
         # convert output_file_name to mp3
         sound = AudioSegment.from_wav(output_file_name)
@@ -82,3 +77,5 @@ class AudioInterface():
         self.transcript = openai.Audio.transcribe("whisper-1",self.audio_file)
         return self.transcript
 
+    def quit(self):
+        self.pa.terminate()

@@ -39,6 +39,7 @@ class AICommunicator():
             self.prompt_history = [{"role":"system","content":f"{temperament}"}]
 
     def evaluate(self,prompt):
+        #TODO - implement streaming response
         self.prompt_history.append({"role":"user","content":f"{prompt}"})
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -89,7 +90,7 @@ class ChattorApp(App):
 
     def submit(self):
         try:
-            if self.worker:  # Add this block
+            if self.worker:  
                 self.worker.stop()
         except AttributeError:
             pass
@@ -99,16 +100,21 @@ class ChattorApp(App):
         self.popup.open()
     
     def voicemode_toggle(self):
+        # TODO - refactor this to be more DRY
         self.listening = True if self.listening == False else False
         print(f'toggled listening, now {self.listening}')
         if self.listening:
             self.root.ids.vsession.text = 'voice on'
+            self.root.ids.vsession.background_color = 0.812, 0.161, 0.169, 0.569
+
             self.audio.recording = True
         else:
             self.root.ids.vsession.text = 'voice off'
             self.audio.recording = False
+            self.root.ids.vsession.background_color = 1,1,1,1
+
         try:
-            if self.worker:  # Add this block
+            if self.worker:  
                 self.worker.stop()
         except AttributeError:
             pass
@@ -125,6 +131,7 @@ class ChattorApp(App):
             self.listening = False
 
     def on_keyboard(self, instance, key, scancode, codepoint, modifier):
+        # TODO - not implemented yet
         if modifier == ['shift'] and codepoint == '\n':
             # Add your text processing logic here
             self.submit()

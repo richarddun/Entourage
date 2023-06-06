@@ -30,9 +30,10 @@
 
     Button:
         id : vsession
-        text: 'vsession'
+        text: 'voice off'
         pos_hint: {'center_x': .95, 'center_y': .15}
         size_hint: (.1,.1)
+        on_press: app.voicemode_toggle()
     
     Button:
         id : switcher
