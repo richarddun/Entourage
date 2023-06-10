@@ -20,8 +20,6 @@ class WorkerThread(threading.Thread):
     def stop(self):
         self.stop_flag.set()
 
-
-
 class ChattorApp(App):
 
     def build(self):
@@ -44,7 +42,8 @@ class ChattorApp(App):
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
-        if len(response) > 100:
+        print(len(response))
+        if len(response) > 500:
             self.say_summary(response)
         else:
             self.speaker.say(response)
@@ -102,10 +101,8 @@ class ChattorApp(App):
             self.root.ids.inputwidget.text = ''
             self.cleared = True
         
-
 class ChattorFlow(FloatLayout):
     pass
 
 if __name__ == "__main__":
     ChattorApp().run()
-
