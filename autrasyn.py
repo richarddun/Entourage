@@ -5,6 +5,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 import pyaudio
 import time 
+import os
 
 # create Class to handle integration with Amazon Polly
 class PollyInterface():
@@ -28,6 +29,7 @@ class PollyInterface():
         # play the audio stream immediately using pydub
         sound = AudioSegment.from_mp3("speech.mp3")
         play(sound)
+        os.remove("speech.mp3")
 
 class AudioInterface():
     def __init__(self):
@@ -57,24 +59,28 @@ class AudioInterface():
         #self.pa.terminate()
 
         # generate the output file name based on epoch now
-        output_file_name = str(time.time()) + ".wav"
-        print("Saving recording to:", output_file_name)
+        self.output_file_name = str(time.time()) + ".wav"
+        print("Saving recording to:", self.output_file_name)
 
         # Write the audio data to a WAV file
-        with wave.open(output_file_name, 'wb') as f:
+        with wave.open(self.output_file_name, 'wb') as f:
             f.setnchannels(2)
             f.setsampwidth(self.pa.get_sample_size(pyaudio.paInt16))
             f.setframerate(44100)
             f.writeframes(b''.join(self.audio_data))
 
         # convert output_file_name to mp3
-        sound = AudioSegment.from_wav(output_file_name)
-        sound.export(output_file_name[:-4] + ".mp3", format="mp3")
-        self.compressed_audio = output_file_name[:-4] + ".mp3"
+        sound = AudioSegment.from_wav(self.output_file_name)
+        sound.export(self.output_file_name[:-4] + ".mp3", format="mp3")
+        self.compressed_audio = self.output_file_name[:-4] + ".mp3"
         
     def transcribe_audio(self):
         self.audio_file = open(self.compressed_audio, "rb")
         self.transcript = openai.Audio.transcribe("whisper-1",self.audio_file)
+        # remove .wav and .mp3 files generated 
+        self.audio_file.close()
+        os.remove(self.compressed_audio)
+        os.remove(self.output_file_name)
         return self.transcript
 
     def quit(self):
