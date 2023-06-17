@@ -3,3 +3,4 @@
 *.mp3
 *.txt
 chat_context.json
+active_sessions.json

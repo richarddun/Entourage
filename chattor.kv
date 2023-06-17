@@ -1,42 +1,34 @@
 #:kivy 2.2.0
 #:import Factory kivy.factory.Factory
 
-<ConfiguratorPopup@Popup>:
-    title: 'Configuration'
-    BoxLayout:
+<ConfigurationPopup@Popup>:
+    id: configuration_popup
+    title: "Configuration"
+    size_hint: .8,.8
 
+    BoxLayout:
+        
+        orientation: "horizontal"
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            GridLayout:
+                id: button_layout
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
 
         GridLayout:
-            cols:2
-            rows:8
-            Label:
-                text: 'Config one'
-            ToggleButton:
-                text: 'Yes'
-                group: 'first'
-            Label:
-                text: 'Config one'
-            ToggleButton:
-                text: 'No'
-                group: 'first'
-            Label:
-                text: 'Config one'
-            ToggleButton:
-                text: 'Maybe'
-                group: 'first'
-            Label:
-                text: 'Config one'
-            ToggleButton:
-                text: 'Never'
-                group: 'first'
-            Label:
-                text: 'Config one'
-        BoxLayout:
-            orientation: 'vertical'
+            cols: 1
+            rows: 2
             Button:
-                text: 'Exit'
-                on_release: root.dismiss()
+                text: "New Session"
+                on_release: root.add_new_session()
 
+            Button:
+                text: "Close"
+                on_release: root.save_sessions()
 
 
 <ChattorFlow>:
@@ -78,4 +70,4 @@
         text: 'Settings'
         pos_hint: {'x':.9, 'y': .2}
         size_hint: (.1,.1)
-        on_release: Factory.ConfiguratorPopup().open()
+        on_release: Factory.ConfigurationPopup().open()

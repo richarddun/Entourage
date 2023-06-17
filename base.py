@@ -2,10 +2,12 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.togglebutton import ToggleButton
 from kivy.clock import Clock
 from autrasyn import PollyInterface, AudioInterface
 from oaiops import AICommunicator
 import threading
+import json
 
 class WorkerThread(threading.Thread):
     def __init__(self, target, args):
@@ -106,6 +108,48 @@ class ChattorApp(App):
         
 class ChattorFlow(FloatLayout):
     pass
+
+class ConfigurationPopup(Popup):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        try:
+            with open('active_sessions.json', 'r') as f:
+                self.sessions = json.load(f)
+        except FileNotFoundError:
+            self.sessions = {'Default session':{'currently_active':True}}
+            with open('active_sessions.json', 'w') as f:
+                json.dump(self.sessions, f)
+        for session in self.sessions:
+            self.restore_sessions(session)
+            # TODO - extend object that is passed into add_new_/restore_session to include
+            # the currently_active flag, selected voice and other settings
+
+    def restore_sessions(self,session):
+        button_layout = self.ids.button_layout
+        if self.sessions[session].get('currently_active'):
+            new_session_button = ToggleButton(group='sessions', text=f"{session}", size_hint_y=None, height=80, state='down')
+        else:
+            new_session_button = ToggleButton(group='sessions', text=f"{session}", size_hint_y=None, height=80)
+        button_layout.add_widget(new_session_button)
+
+    def add_new_session(self, bid=None):
+        if bid is None:
+            # generate uuid
+            from uuid import uuid4
+            bid = f"session-{str(uuid4())[:6]}"
+            self.sessions[bid] = {}
+        button_layout = self.ids.button_layout
+        if self.sessions[bid].get('currently_active'):
+            new_session_button = ToggleButton(group='sessions', text=f"{bid}", size_hint_y=None, height=80, state='down', background_color=(0.812, 0.161, 0.169, 0.569))
+        else:
+            new_session_button = ToggleButton(group='sessions', text=f"{bid}", size_hint_y=None, height=80)
+        self.sessions[bid] = {}
+        button_layout.add_widget(new_session_button)
+
+    def save_sessions(self):
+        with open('active_sessions.json', 'w') as f:
+            json.dump(self.sessions, f)
+        self.dismiss()
 
 if __name__ == "__main__":
     ChattorApp().run()
