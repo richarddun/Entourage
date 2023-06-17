@@ -1,3 +1,5 @@
 *.pyc
 *.wav
 *.mp3
+*.txt
+chat_context.json

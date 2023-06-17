@@ -24,13 +24,16 @@ class ChattorApp(App):
 
     def build(self):
         self.cleared = False
-        self.oai = AICommunicator()
+        self.oai = AICommunicator(memory=True)
         self.popup = Popup(title='Processing...', content=Label(text='Waiting for AI response...'), auto_dismiss=False, size_hint=(.8, .8))
         self.speaker = PollyInterface()
         self.audio = AudioInterface()
         self.listening = False
         return ChattorFlow()
     
+    def on_stop(self):
+        self.oai.export_chat_log()
+        
     def evaluate_thread(self, prompt):
         response = self.oai.evaluate(prompt)
         Clock.schedule_once(lambda dt: self.on_response(response), 0)

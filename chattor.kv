@@ -1,7 +1,45 @@
 #:kivy 2.2.0
+#:import Factory kivy.factory.Factory
+
+<ConfiguratorPopup@Popup>:
+    title: 'Configuration'
+    BoxLayout:
+
+
+        GridLayout:
+            cols:2
+            rows:8
+            Label:
+                text: 'Config one'
+            ToggleButton:
+                text: 'Yes'
+                group: 'first'
+            Label:
+                text: 'Config one'
+            ToggleButton:
+                text: 'No'
+                group: 'first'
+            Label:
+                text: 'Config one'
+            ToggleButton:
+                text: 'Maybe'
+                group: 'first'
+            Label:
+                text: 'Config one'
+            ToggleButton:
+                text: 'Never'
+                group: 'first'
+            Label:
+                text: 'Config one'
+        BoxLayout:
+            orientation: 'vertical'
+            Button:
+                text: 'Exit'
+                on_release: root.dismiss()
+
+
 
 <ChattorFlow>:
-
 
     TextInput:
         id: outputwidget
@@ -30,13 +68,14 @@
 
     Button:
         id : vsession
-        text: 'voice off'
+        text: 'Push to Talk'
         pos_hint: {'center_x': .95, 'center_y': .15}
         size_hint: (.1,.1)
         on_press: app.voicemode_toggle()
     
     Button:
         id : switcher
-        text: 'switcher'
+        text: 'Settings'
         pos_hint: {'x':.9, 'y': .2}
         size_hint: (.1,.1)
+        on_release: Factory.ConfiguratorPopup().open()

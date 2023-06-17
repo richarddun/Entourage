@@ -1,28 +1,67 @@
 import openai
 import os
+import json
+import datetime
 
 class AICommunicator():
 
-    def __init__(self,temperament=None) -> None:
+    def __init__(self,memory=False) -> None:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.terse = False
-        self.reset_prompt_history(temperament)
+        self.load_json_configuration()
+        self.reset_prompt_history(memory)
+    
+    def display_chat_log(self):
+        # display chat log
+        for message in self.prompt_history:
+            print(message["role"],message["content"])
+    
+    def export_chat_log(self):
+        self.save_context() # firstly save the actual log!
+        # export chat log
+        with open('chat_log.txt', 'a') as f:
+            # add todays date and time with each export
+            f.write(f"\n\n{'-'*20}\nExported on {datetime.datetime.now()}\n")
+
+            for message in self.prompt_history:
+                f.write(f"> {message['role']} : {message['content']}\n")
+
+    def save_context(self):
+        # save current chat log
+        with open('chat_context.json', 'w') as f:
+            json.dump(self.prompt_history, f)
+
+    def load_json_configuration(self):
+        # load configuration json file
+        # e.g. {'system_prompt': 'You are a witty and keen conversationalist.  
+        #        You try to keep your responses as short as possible 
+        #        but always try to be friendly and humorous.  
+        #        You regularly ask questions and make sure to respond with a clear and concise answer.  
+        #        You are a good listener and a good communicator'}
+        with open('configuration.json', 'r') as f:
+            self.configuration = json.load(f)
 
     def get_prompt_history(self):
         return self.prompt_history
     
-    def reset_prompt_history(self,temperament):
-        if temperament is None:
-            self.prompt_history = [{"role":"system","content":"You are a witty and keen conversationalist.  You try to keep your responses as short as possible but always try to be friendly and humorous.  You regularly ask questions and make sure to respond with a clear and concise answer.  You are a good listener and a good communicator"}]
+    def reset_prompt_history(self, memory = False):
+        if memory is False:
+            self.prompt_history = [{"role":"system","content":f"{self.configuration['system_prompt']}"}]
         else:
-            self.prompt_history = [{"role":"system","content":f"{temperament}"}]
+            self.remember_last_context()
+            #self.prompt_history = [{"role":"system","content":f"{override}"}]
+
+    def remember_last_context(self):
+        # read last saved chat context json file
+        with open('chat_context.json', 'r') as f:
+            self.prompt_history = json.load(f)
 
     def evaluate(self,prompt):
         #TODO - implement streaming response
         self.prompt_history.append({"role":"user","content":f"{prompt}"})
         response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-16k",
         messages = self.prompt_history
     )
         self.prompt_history.append({"role":"assistant","content":f"{response.choices[0].message.content.strip()}"})
