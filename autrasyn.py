@@ -6,21 +6,29 @@ from pydub.playback import play
 import pyaudio
 import time 
 import os
+import json
 
 # create Class to handle integration with Amazon Polly
 class PollyInterface():
     def __init__(self):
         # Create a Polly client
         self.polly = boto3.client('polly',region_name='eu-west-1')
+        # load configuration from json configuration file
+
+    def refresh_configuration(self):
+        with open('configuration.json') as f:
+            self.config = json.load(f)
+
 
     def say(self, text):
+        self.refresh_configuration()
         # Synthesize speech from the input text.
         # TODO - implement streaming
         response = self.polly.synthesize_speech(
             OutputFormat='mp3',
             Text=text,
             Engine='neural',
-            VoiceId='Emma'
+            VoiceId=self.config['voice_id']
         )
 
         # Save the audio stream to a .mp3 file

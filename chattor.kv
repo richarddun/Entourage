@@ -20,15 +20,71 @@
                 height: self.minimum_height
 
         GridLayout:
+            id: dropdown_layout
             cols: 1
-            rows: 2
+            rows: 4
+
             Button:
+                size_hint: (.2,None)
                 text: "New Session"
                 on_release: root.add_new_session()
 
             Button:
-                text: "Close"
+                size_hint: (.2,None)
+                text: "Remove Session"
+                on_release: root.delete_session()
+
+            Button:
+                size_hint: (.2,None)
+                text: "Save and Return"
                 on_release: root.save_sessions()
+
+            Button:
+                id: voicebutton
+                text: 'Voice Persona'
+                size_hint: (.2, None)
+
+<VoiceConfigButton@Button>:
+    size_hint_y: None
+    height: 50
+    
+
+<CustomDropDown>:
+    VoiceConfigButton:
+        text: 'Niamh (en-IE)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Emma (en-GB, Default)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Arthur (en-GB)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Kajal (en-IN)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Aria (en-NZ)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text : 'Ayanda (en-ZA)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Ruth (en-US)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Stephen (en-US)'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: 'Kevin (en-US)'
+        on_release: root.select(self.text)
 
 
 <ChattorFlow>:

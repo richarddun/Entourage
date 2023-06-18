@@ -3,6 +3,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.dropdown import DropDown
 from kivy.clock import Clock
 from autrasyn import PollyInterface, AudioInterface
 from oaiops import AICommunicator
@@ -109,6 +110,9 @@ class ChattorApp(App):
 class ChattorFlow(FloatLayout):
     pass
 
+class CustomDropDown(DropDown):
+    pass
+
 class ConfigurationPopup(Popup):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -123,6 +127,12 @@ class ConfigurationPopup(Popup):
             self.restore_sessions(session)
             # TODO - extend object that is passed into add_new_/restore_session to include
             # the currently_active flag, selected voice and other settings
+        dropdown = CustomDropDown()
+        mainbutton = self.ids.voicebutton
+        mainbutton.bind(on_release=dropdown.open)
+        #mainbutton.id = 'voicebutton'
+        dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
+        #self.ids.dropdown_layout.add_widget(mainbutton)
 
     def restore_sessions(self,session):
         button_layout = self.ids.button_layout
@@ -137,7 +147,7 @@ class ConfigurationPopup(Popup):
             # generate uuid
             from uuid import uuid4
             bid = f"session-{str(uuid4())[:6]}"
-            self.sessions[bid] = {}
+            self.sessions[bid] = {'currently_active':False}
         button_layout = self.ids.button_layout
         if self.sessions[bid].get('currently_active'):
             new_session_button = ToggleButton(group='sessions', text=f"{bid}", size_hint_y=None, height=80, state='down', background_color=(0.812, 0.161, 0.169, 0.569))
@@ -146,10 +156,38 @@ class ConfigurationPopup(Popup):
         self.sessions[bid] = {}
         button_layout.add_widget(new_session_button)
 
+
     def save_sessions(self):
         with open('active_sessions.json', 'w') as f:
             json.dump(self.sessions, f)
+        self.close_config()
         self.dismiss()
+
+    def close_config(self):
+        mainbutton = self.ids.voicebutton
+        voice = mainbutton.text.split(' ')[0]
+        if voice == 'Voice':
+            return
+        # save mainbutton.text property to json file under voice_id key
+        with open('configuration.json','r') as infile:
+            config = json.load(infile)
+        config['voice_id'] = mainbutton.text.split(' ')[0]
+        # save json file
+        with open('configuration.json','w') as outfile:
+            json.dump(config, outfile)
+        #TODO - Bubble the change of session over the oaiops.py, somehow
+
+    def delete_session(self):
+        # iterate through all widgets and remove widget with property down
+        button_layout = self.ids.button_layout
+        for widget in button_layout.children:
+            if widget.state == 'down':
+                if widget.text == 'Default session':
+                    return
+                del(self.sessions[widget.text])
+                button_layout.remove_widget(widget)
+    
+
 
 if __name__ == "__main__":
     ChattorApp().run()
