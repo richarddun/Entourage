@@ -1,3 +1,6 @@
+import os
+#os.environ["KIVY_NO_ARGS"] = "1"
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -9,6 +12,8 @@ from autrasyn import PollyInterface, AudioInterface
 from oaiops import AICommunicator
 import threading
 import json
+
+
 
 class WorkerThread(threading.Thread):
     def __init__(self, target, args):
@@ -49,7 +54,6 @@ class EntourageApp(App):
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
-        print(len(response))
         if len(response) > 500:
             self.say_summary(response)
         else:
@@ -70,7 +74,6 @@ class EntourageApp(App):
         self.oai.confirm_active_session()
         # TODO - refactor this to be more DRY
         self.listening = True if self.listening == False else False
-        print(f'toggled listening, now {self.listening}')
         if self.listening:
             self.root.ids.vsession.text = 'voice on'
             self.root.ids.vsession.background_color = 0.812, 0.161, 0.169, 0.569
@@ -91,7 +94,6 @@ class EntourageApp(App):
 
     def gather_vocal_audio_for_transcription(self):
         if self.listening:
-            print('start audio recording')
             self.audio.start_record_audio()
             myprompt = self.audio.transcribe_audio()
             Clock.schedule_once(lambda dt: setattr(self.root.ids.inputwidget, 'text', myprompt.text), 0)
@@ -118,6 +120,7 @@ class CustomDropDown(DropDown):
 class ConfigurationPopup(Popup):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         try:
             with open('session_tracker.json', 'r') as f:
                 self.sessions = json.load(f)

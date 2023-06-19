@@ -47,7 +47,6 @@ class AudioInterface():
     
     def stop_record_audio(self):
         self.recording = False
-        print("Recording stopped.")
 
     def start_record_audio(self):
         # Open a microphone stream
@@ -56,7 +55,6 @@ class AudioInterface():
         #                            input_device_index=1)
 
         self.recording = True
-        print("Recording started.")
         self.audio_data = []
         while self.recording:
             self.data = self.stream.read(1024)
@@ -68,7 +66,6 @@ class AudioInterface():
 
         # generate the output file name based on epoch now
         self.output_file_name = str(time.time()) + ".wav"
-        print("Saving recording to:", self.output_file_name)
 
         # Write the audio data to a WAV file
         with wave.open(self.output_file_name, 'wb') as f:
