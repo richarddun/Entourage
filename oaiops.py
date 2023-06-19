@@ -81,8 +81,13 @@ class AICommunicator():
         #        but always try to be friendly and humorous.  
         #        You regularly ask questions and make sure to respond with a clear and concise answer.  
         #        You are a good listener and a good communicator'}
-        with open('configuration.json', 'r') as f:
-            self.configuration = json.load(f)
+        try:
+            with open('configuration.json', 'r') as f:
+                self.configuration = json.load(f)
+        except FileNotFoundError:
+            with open('configuration.json', 'w') as f:
+                json.dump({'system_prompt': 'You are a witty and keen conversationalist.   You try to keep your responses as short as possible  but always try to be friendly and humorous.   You regularly ask questions and make sure to respond with a clear and concise answer.   You are a good listener and a good communicator','voice_id': 'Emma'}, f)
+            self.load_json_configuration()
 
     def get_prompt_history(self):
         return self.prompt_history
