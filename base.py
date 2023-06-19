@@ -23,7 +23,7 @@ class WorkerThread(threading.Thread):
     def stop(self):
         self.stop_flag.set()
 
-class ChattorApp(App):
+class EntourageApp(App):
 
     def build(self):
         self.cleared = False
@@ -197,4 +197,4 @@ class ConfigurationPopup(Popup):
                 button_layout.remove_widget(widget)
     
 if __name__ == "__main__":
-    ChattorApp().run()
+    EntourageApp().run()
