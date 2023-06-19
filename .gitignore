@@ -2,5 +2,5 @@
 *.wav
 *.mp3
 *.txt
-chat_context.json
-active_sessions.json
+all_chat_context.json
+session_tracker.json

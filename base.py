@@ -38,6 +38,7 @@ class ChattorApp(App):
         self.oai.export_chat_log()
         
     def evaluate_thread(self, prompt):
+        self.oai.confirm_active_session()
         response = self.oai.evaluate(prompt)
         Clock.schedule_once(lambda dt: self.on_response(response), 0)
 
@@ -66,6 +67,7 @@ class ChattorApp(App):
         self.popup.open()
     
     def voicemode_toggle(self):
+        self.oai.confirm_active_session()
         # TODO - refactor this to be more DRY
         self.listening = True if self.listening == False else False
         print(f'toggled listening, now {self.listening}')
@@ -117,11 +119,11 @@ class ConfigurationPopup(Popup):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         try:
-            with open('active_sessions.json', 'r') as f:
+            with open('session_tracker.json', 'r') as f:
                 self.sessions = json.load(f)
         except FileNotFoundError:
             self.sessions = {'Default session':{'currently_active':True}}
-            with open('active_sessions.json', 'w') as f:
+            with open('session_tracker.json', 'w') as f:
                 json.dump(self.sessions, f)
         for session in self.sessions:
             self.restore_sessions(session)
@@ -153,12 +155,19 @@ class ConfigurationPopup(Popup):
             new_session_button = ToggleButton(group='sessions', text=f"{bid}", size_hint_y=None, height=80, state='down', background_color=(0.812, 0.161, 0.169, 0.569))
         else:
             new_session_button = ToggleButton(group='sessions', text=f"{bid}", size_hint_y=None, height=80)
-        self.sessions[bid] = {}
+        self.sessions[bid] = {'currently_active':False}
+
         button_layout.add_widget(new_session_button)
 
 
     def save_sessions(self):
-        with open('active_sessions.json', 'w') as f:
+        button_layout = self.ids.button_layout
+        for widget in button_layout.children:
+            if self.sessions[widget.text].get('currently_active'):
+                self.sessions[widget.text]['currently_active'] = False
+            if widget.state == 'down':
+                self.sessions[widget.text]['currently_active'] = True
+        with open('session_tracker.json', 'w') as f:
             json.dump(self.sessions, f)
         self.close_config()
         self.dismiss()
@@ -187,7 +196,5 @@ class ConfigurationPopup(Popup):
                 del(self.sessions[widget.text])
                 button_layout.remove_widget(widget)
     
-
-
 if __name__ == "__main__":
     ChattorApp().run()
