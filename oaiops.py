@@ -92,8 +92,6 @@ class AICommunicator():
     def get_prompt_history(self):
         return self.prompt_history
     
-
-
     def evaluate(self,prompt):
         #TODO - implement streaming response
         self.prompt_history[self.active_session_key].append({"role":"user","content":f"{prompt}"})
@@ -115,4 +113,3 @@ class AICommunicator():
     )
         #self.prompt_history.append({"role":"assistant","content":f"{response.choices[0].message.content.strip()}"})
         return response.choices[0].message.content.strip()
-

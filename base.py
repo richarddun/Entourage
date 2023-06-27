@@ -1,6 +1,6 @@
 import os
 #os.environ["KIVY_NO_ARGS"] = "1"
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+#os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -54,14 +54,14 @@ class EntourageApp(App):
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
-        if len(response) > 500:
+        if len(response.split(' ')) > 200:
             self.say_summary(response)
         else:
             self.speaker.say(response)
 
     def submit(self):
         try:
-            if self.worker:  
+            if self.worker:
                 self.worker.stop()
         except AttributeError:
             pass
@@ -75,12 +75,12 @@ class EntourageApp(App):
         # TODO - refactor this to be more DRY
         self.listening = True if self.listening == False else False
         if self.listening:
-            self.root.ids.vsession.text = 'voice on'
+            self.root.ids.vsession.text = 'Listening'
             self.root.ids.vsession.background_color = 0.812, 0.161, 0.169, 0.569
 
             self.audio.recording = True
         else:
-            self.root.ids.vsession.text = 'voice off'
+            self.root.ids.vsession.text = 'Push to Talk'
             self.audio.recording = False
             self.root.ids.vsession.background_color = 1,1,1,1
 
