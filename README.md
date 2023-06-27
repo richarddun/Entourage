@@ -1,4 +1,4 @@
-# gpt-client
+# Entourage
 
 Client interface to OpenAI's gpt3.5-turbo (as of right now) which requires : 
 
