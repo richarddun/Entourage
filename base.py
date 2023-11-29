@@ -45,12 +45,35 @@ class EntourageApp(App):
     def evaluate_thread(self, prompt):
         self.oai.confirm_active_session()
         response = self.oai.evaluate(prompt)
-        Clock.schedule_once(lambda dt: self.on_response(response), 0)
+        self.on_response(response)
 
-    def say_summary(self, prompt):
-        response = self.oai.voice_summarize(prompt)
-        self.speaker.say(response)
+        """
+        Here begins the work to enable multiprocessing of all moving parts
+        in the transcription (STT) via Whisper, the completion via GPT,
+        the chopping up of the streaming TTS response from amazon polly.
+
+        It occurs to me that there are even more optimal ways to handle 
+        the latent delays in sending large amounts of data to the whisper api for
+        transcription and the other various moving parts, so a stretch goal coul also 
+        be to incrementally transcribe text, like every 2-3 seconds. 
+
+        To get all of this working (presumably) in Kivy requires use of the 
+        multiprocessing module.  In brief : 
         
+        #### multiprocessing Queue should be created for each task
+
+        - multiprocessing Queue for audio recording created (FIFO)
+        - a multiprocessing approach for the initial STT and whisper
+          makes no sense, because the full prompt needs to make it to the
+          gpt model.  Everything after that can be async'd.
+        - multiprocessing Queue for audio completion created (FIFO)
+        - subprocess polls queue for new completion chunks
+        - whisper transcribes audio chunks and pushes to queue
+        - subprocess polls queue for new transcription chunks and pushes to GPT
+        - GPT completes transcription chunks and pushes to queue
+        - subprocess polls queue for new completion chunks and pushes to TTS
+        """
+     
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
@@ -59,6 +82,10 @@ class EntourageApp(App):
         else:
             self.speaker.say(response)
 
+    def say_summary(self, prompt):
+        response = self.oai.voice_summarize(prompt)
+        self.speaker.say(response)
+
     def submit(self):
         try:
             if self.worker:
@@ -66,9 +93,13 @@ class EntourageApp(App):
         except AttributeError:
             pass
         prompt = self.root.ids.inputwidget.text
-        self.worker = WorkerThread(target=self.evaluate_thread, args=(prompt,))
-        self.worker.start()
-        self.popup.open()
+        Clock.schedule_once(lambda dt: self.evaluate_thread(prompt), 0)
+        self.popup.title = 'Processing...'
+        self.evaluate_thread(prompt)
+        #self.worker = WorkerThread(target=self.evaluate_thread, args=(prompt,))
+        #self.worker.start()
+        #self.popup.open()
+        
     
     def voicemode_toggle(self):
         self.oai.confirm_active_session()
