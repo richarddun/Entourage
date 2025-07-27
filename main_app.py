@@ -12,18 +12,38 @@ from autrasyn import PollyInterface, AudioInterface
 from oaiops import AICommunicator
 import threading
 import json
+import queue
+import time
 
 
 
 class WorkerThread(threading.Thread):
-    def __init__(self, target, args):
-        super().__init__(target=target, args=args)
+    def __init__(self, target, args=(), kwargs=None):
+        super().__init__()
+        self._target = target
+        self._args = args
+        self._kwargs = kwargs if kwargs is not None else {}
         self.stop_flag = threading.Event()
 
     def run(self):
         while not self.stop_flag.is_set():
             self._target(*self._args, **self._kwargs)  # Call the target function
             self.stop_flag.set()
+
+    def stop(self):
+        self.stop_flag.set()
+
+class StreamingWorkerThread(threading.Thread):
+    def __init__(self, target, args=(), kwargs=None):
+        super().__init__()
+        self._target = target
+        self._args = args
+        self._kwargs = kwargs if kwargs is not None else {}
+        self.stop_flag = threading.Event()
+
+    def run(self):
+        self._target(*self._args, **self._kwargs)
+        self.stop_flag.set()
 
     def stop(self):
         self.stop_flag.set()
@@ -37,20 +57,97 @@ class EntourageApp(App):
         self.speaker = PollyInterface()
         self.audio = AudioInterface()
         self.listening = False
+        self.response_queue = queue.Queue()
+        self.streaming_active = False
+        self.tts_worker = None  # Worker thread for TTS playback
         return ChattorFlow()
-    
+
+    def load_kv(self, filename=None):
+        # Load the improved KV file
+        return super().load_kv(filename='Entourage_improved.kv')
+
     def on_stop(self):
         self.oai.export_chat_log()
-        
+        # Ensure TTS worker thread is stopped and cleaned up
+        if self.tts_worker and self.tts_worker.is_alive():
+            self.speaker.streaming_active = False
+            self.tts_worker.join()
+
     def evaluate_thread(self, prompt):
         self.oai.confirm_active_session()
         response = self.oai.evaluate(prompt)
-        Clock.schedule_once(lambda dt: self.on_response(response), 0)
+        # Process streaming response
+        self.process_streaming_response(response, prompt)
+
+    def process_streaming_response(self, response, prompt):
+        self.streaming_active = True
+
+        try:
+            # Generator for text chunks from streaming response
+            text_chunks = (chunk.choices[0].delta.content for chunk in response if chunk.choices[0].delta.content is not None)
+
+            def update_ui(dt, text):
+                self.root.ids.outputwidget.text = text
+
+            buffer = ""
+            ui_text = ""
+
+            # Stop any existing TTS worker
+            if self.tts_worker and self.tts_worker.is_alive():
+                self.speaker.streaming_active = False
+                self.tts_worker.join()
+
+            # Define a generator to yield text chunks for TTS worker
+            def tts_text_generator():
+                nonlocal buffer, ui_text
+                for chunk in text_chunks:
+                    if not self.streaming_active:
+                        break
+                    buffer += chunk
+                    ui_text = buffer
+                    yield chunk
+
+            # Start TTS playback in a separate thread
+            import threading
+            self.speaker.streaming_active = True
+            self.tts_worker = threading.Thread(target=self.speaker.say_streaming, args=(tts_text_generator(),))
+            self.tts_worker.start()
+
+            # Update UI progressively on main thread
+            for chunk in tts_text_generator():
+                if not self.streaming_active:
+                    break
+                Clock.schedule_once(lambda dt, text=ui_text: update_ui(dt, text), 0)
+
+            # Wait for TTS worker to finish
+            self.tts_worker.join()
+
+            # Add the complete response to history
+            self.oai.prompt_history[self.oai.active_session_key].append({"role":"assistant","content":buffer})
+            self.oai.save_context()
+
+            # Schedule final processing
+            Clock.schedule_once(lambda dt: self.on_streaming_complete(buffer), 0)
+        except Exception as e:
+            print(f"Error in streaming: {e}")
+            self.streaming_active = False
+            self.speaker.streaming_active = False
+            Clock.schedule_once(lambda dt: self.popup.dismiss(), 0)
+
+    def on_streaming_complete(self, response):
+        self.streaming_active = False
+        self.popup.dismiss()
+        if len(response.split(' ')) > 200:
+            # For long responses, summarize for voice output
+            summary = self.oai.voice_summarize(response)
+            self.speaker.say(summary)
+        else:
+            self.speaker.say(response)
 
     def say_summary(self, prompt):
         response = self.oai.voice_summarize(prompt)
         self.speaker.say(response)
-        
+
     def on_response(self, response):
         self.root.ids.outputwidget.text = response
         self.popup.dismiss()
@@ -63,13 +160,15 @@ class EntourageApp(App):
         try:
             if self.worker:
                 self.worker.stop()
+                self.streaming_active = False
         except AttributeError:
             pass
         prompt = self.root.ids.inputwidget.text
-        self.worker = WorkerThread(target=self.evaluate_thread, args=(prompt,))
+        self.root.ids.outputwidget.text = ""  # Clear previous response
+        self.worker = StreamingWorkerThread(target=self.evaluate_thread, args=(prompt,))
         self.worker.start()
         self.popup.open()
-    
+
     def voicemode_toggle(self):
         self.oai.confirm_active_session()
         # TODO - refactor this to be more DRY
@@ -85,8 +184,9 @@ class EntourageApp(App):
             self.root.ids.vsession.background_color = 1,1,1,1
 
         try:
-            if self.worker:  
+            if self.worker:
                 self.worker.stop()
+                self.streaming_active = False
         except AttributeError:
             pass
         self.worker = WorkerThread(target=self.gather_vocal_audio_for_transcription, args=())
@@ -105,12 +205,12 @@ class EntourageApp(App):
         if modifier == ['shift'] and codepoint == '\n':
             # Add your text processing logic here
             self.submit()
-    
+
     def first_clear(self):
         if self.cleared == False:
             self.root.ids.inputwidget.text = ''
             self.cleared = True
-        
+
 class ChattorFlow(FloatLayout):
     pass
 
@@ -198,6 +298,6 @@ class ConfigurationPopup(Popup):
                     return
                 del(self.sessions[widget.text])
                 button_layout.remove_widget(widget)
-    
+
 if __name__ == "__main__":
     EntourageApp().run()

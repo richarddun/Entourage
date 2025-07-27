@@ -46,8 +46,8 @@ With integrated voice input (via OpenAI Whisper) and voice output (via Amazon Po
 ## Prerequisites
 
 - **Python**: Version 3.7 or higher.
-- **OpenAI API key**: Set the `OPENAI_API_KEY` environment variable.
-- **AWS credentials**: Set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` (with Amazon Polly access).
+- **OpenAI API key**: Set in `.env` file or environment variable.
+- **AWS credentials**: Set in `.env` file or environment variable (with Amazon Polly access).
 - **PortAudio** development libraries (for PyAudio).
 - **FFmpeg** (for audio conversion with pydub).
 
@@ -90,10 +90,36 @@ brew install ffmpeg portaudio
 3. Install Python dependencies:
 
    ```bash
-   pip install openai boto3 kivy pydub pyaudio
+   pip install openai boto3 kivy pydub pyaudio python-dotenv
    ```
 
 ## Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root with your API keys:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` to add your actual keys:
+
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key_here
+```
+
+Alternatively, you can set them as environment variables:
+
+```bash
+export OPENAI_API_KEY=your_openai_api_key
+export AWS_ACCESS_KEY_ID=your_aws_access_key
+export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+```
+
+### Application Configuration
 
 Configure `configuration.json` to tune the assistant:
 
@@ -102,14 +128,6 @@ Configure `configuration.json` to tune the assistant:
   "system_prompt": "You are a witty and keen conversationalist.   You try to keep your responses as short as possible but always try to be friendly and humorous. You regularly ask questions and make sure to respond with a clear and concise answer. You are a good listener and a good communicator.",
   "voice_id": "Emma"
 }
-```
-
-Set environment variables:
-
-```bash
-export OPENAI_API_KEY=your_openai_api_key
-export AWS_ACCESS_KEY_ID=your_aws_access_key
-export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 ```
 
 ## Usage
@@ -155,7 +173,6 @@ Contributions, issues, and feature requests are welcome! Please follow these ste
 
 ## Roadmap
 
-- Support streaming responses from OpenAI.
 - Improve voice transcription accuracy and multi-language support.
 - Mobile packaging for Android and iOS.
 - Plugin architecture for extended capabilities.

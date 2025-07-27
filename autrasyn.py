@@ -4,26 +4,89 @@ import boto3
 from pydub import AudioSegment
 from pydub.playback import play
 import pyaudio
-import time 
+import time
 import os
 import json
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("Warning: python-dotenv is not installed, environment variables might not be loaded from .env")
 
 # create Class to handle integration with Amazon Polly
 class PollyInterface():
     def __init__(self):
-        # Create a Polly client
-        self.polly = boto3.client('polly',region_name='eu-west-1')
+        # Create a Polly client with credentials from environment
+        self.polly = boto3.client(
+            'polly',
+            region_name='eu-west-1',
+            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+        )
         # load configuration from json configuration file
+        self.refresh_configuration()
+
+        # Initialize PyAudio for playback
+        self.audio: pyaudio.PyAudio
+        try:
+            self.audio = pyaudio.PyAudio()
+            self.stream = None
+        except Exception as e:
+            raise Exception(f"Error initializing PyAudio: {e}")
 
     def refresh_configuration(self):
         with open('configuration.json') as f:
             self.config = json.load(f)
 
+    def play_audio_stream(self, audio_stream):
+        """Play audio stream from Polly in chunks"""
+        if self.stream is None:
+            self.stream = self.audio.open(format=pyaudio.paInt16,
+                                          channels=1,
+                                          rate=16000,
+                                          output=True)
+        data = audio_stream.read(1024)
+        while data:
+            self.stream.write(data)
+            data = audio_stream.read(1024)
+
+    def synthesize_and_play(self, text_chunk):
+        """Synthesize speech for a text chunk and play it immediately"""
+        response = self.polly.synthesize_speech(
+            Text=text_chunk,
+            OutputFormat='pcm',
+            VoiceId=self.config.get('voice_id', 'Joanna'),
+            SampleRate='16000'
+        )
+        audio_stream = response['AudioStream']
+        self.play_audio_stream(audio_stream)
+
+    def say_streaming(self, text_generator):
+        """Handle streaming text for voice output with incremental synthesis and playback"""
+        self.refresh_configuration()
+        buffer = ""
+        for chunk in text_generator:
+            buffer += chunk
+            # Check for sentence end or buffer length threshold to synthesize
+            if any(p in buffer for p in ['.', '!', '?']) or len(buffer) > 100:
+                self.synthesize_and_play(buffer.strip())
+                buffer = ""
+        # Synthesize any remaining buffered text
+        if buffer:
+            self.synthesize_and_play(buffer.strip())
+
+    def close(self):
+        """Cleanup audio stream and PyAudio"""
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+            self.stream = None
+        if self.audio:
+            self.audio.terminate()
 
     def say(self, text):
         self.refresh_configuration()
         # Synthesize speech from the input text.
-        # TODO - implement streaming
         response = self.polly.synthesize_speech(
             OutputFormat='mp3',
             Text=text,
@@ -44,7 +107,9 @@ class AudioInterface():
         # Create a PyAudio object
         self.pa = pyaudio.PyAudio()
         self.recording = False
-    
+        # Initialize OpenAI client with API key from environment
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
     def stop_record_audio(self):
         self.recording = False
 
@@ -78,11 +143,14 @@ class AudioInterface():
         sound = AudioSegment.from_wav(self.output_file_name)
         sound.export(self.output_file_name[:-4] + ".mp3", format="mp3")
         self.compressed_audio = self.output_file_name[:-4] + ".mp3"
-        
+
     def transcribe_audio(self):
         self.audio_file = open(self.compressed_audio, "rb")
-        self.transcript = openai.Audio.transcribe("whisper-1",self.audio_file)
-        # remove .wav and .mp3 files generated 
+        self.transcript = self.client.audio.transcriptions.create(
+            model="whisper-1",
+            file=self.audio_file
+        )
+        # remove .wav and .mp3 files generated
         self.audio_file.close()
         os.remove(self.compressed_audio)
         os.remove(self.output_file_name)

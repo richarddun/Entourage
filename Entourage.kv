@@ -4,52 +4,84 @@
 <ConfigurationPopup@Popup>:
     id: configuration_popup
     title: "Configuration"
-    size_hint: .8,.8
+    size_hint: 0.9, 0.9
+    background: 'atlas://data/images/defaulttheme/button'
+    separator_color: 0.2, 0.6, 0.8, 1
+    title_color: 1, 1, 1, 1
 
     BoxLayout:
-        
         orientation: "horizontal"
+        padding: 10
+        spacing: 10
 
         ScrollView:
             do_scroll_x: False
             do_scroll_y: True
+            size_hint_x: 0.7
+
             GridLayout:
                 id: button_layout
                 cols: 1
                 size_hint_y: None
                 height: self.minimum_height
+                spacing: 5
+                padding: 5
 
-        GridLayout:
-            id: dropdown_layout
-            cols: 1
-            rows: 4
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.3
+            spacing: 10
 
             Button:
-                size_hint: (.2,None)
+                size_hint_y: None
+                height: 50
                 text: "New Session"
+                background_color: 0.2, 0.7, 0.3, 1
                 on_release: root.add_new_session()
 
             Button:
-                size_hint: (.2,None)
+                size_hint_y: None
+                height: 50
                 text: "Remove Session"
+                background_color: 0.8, 0.2, 0.2, 1
                 on_release: root.delete_session()
 
             Button:
-                size_hint: (.2,None)
+                size_hint_y: None
+                height: 50
                 text: "Save and Return"
+                background_color: 0.2, 0.5, 0.8, 1
                 on_release: root.save_sessions()
+
+            Widget:
+                size_hint_y: None
+                height: 20
+
+            Label:
+                size_hint_y: None
+                height: 30
+                text: "Voice Persona"
+                color: 0, 0, 0, 1
+                bold: True
 
             Button:
                 id: voicebutton
-                text: 'Voice Persona'
-                size_hint: (.2, None)
+                text: 'Emma (en-GB, Default)'
+                size_hint_y: None
+                height: 50
+                background_color: 0.9, 0.9, 0.9, 1
+                color: 0, 0, 0, 1
 
 <VoiceConfigButton@Button>:
     size_hint_y: None
     height: 50
-    
+    background_color: 0.95, 0.95, 0.95, 1
+    color: 0, 0, 0, 1
 
 <CustomDropDown>:
+    auto_width: False
+    width: 200
+
     VoiceConfigButton:
         text: 'Niamh (en-IE)'
         on_release: root.select(self.text)
@@ -86,44 +118,89 @@
         text: 'Kevin (en-US)'
         on_release: root.select(self.text)
 
-
 <ChattorFlow>:
+    canvas.before:
+        Color:
+            rgba: 0.95, 0.95, 0.97, 1  # Light gray background
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
-    TextInput:
-        id: outputwidget
-        pos_hint:{'top':1,'left':1}
-        size_hint: 1,.7
-        text: 'waiting for input...'
-        readonly: True
-        background_color: 0.494, 0.749, 0.749, 0.8
-        use_bubble: True
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
 
-    TextInput:
-        id: inputwidget
-        pos_hint:{'bottom':1,'left':1}
-        size_hint: .9,.3
-        text: 'Textinput text here...'
-        background_color: 0.749, 0.733, 0.494, 0.8
-        on_touch_down: app.first_clear()
-        #on_key_down: app.on_keyboard()
+        # Chat display area
+        TextInput:
+            id: outputwidget
+            size_hint_y: 0.7
+            text: 'Welcome to Entourage! How can I assist you today?'
+            readonly: True
+            background_color: 1, 1, 1, 1
+            foreground_color: 0, 0, 0, 1
+            font_size: 16
+            padding: 15
+            # Add a subtle border
+            canvas.before:
+                Color:
+                    rgba: 0.8, 0.8, 0.8, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
 
-    Button:
-        id: submitter
-        text: 'Submit'
-        pos_hint: {'right': 1, 'bottom': 1}
-        size_hint: (.1, .1)
-        on_press: app.submit()
+        # Input area
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 0.3
+            spacing: 10
 
-    Button:
-        id : vsession
-        text: 'Push to Talk'
-        pos_hint: {'center_x': .95, 'center_y': .15}
-        size_hint: (.1,.1)
-        on_press: app.voicemode_toggle()
-    
-    Button:
-        id : switcher
-        text: 'Settings'
-        pos_hint: {'x':.9, 'y': .2}
-        size_hint: (.1,.1)
-        on_release: Factory.ConfigurationPopup().open()
+            TextInput:
+                id: inputwidget
+                size_hint_y: 0.7
+                text: 'Type your message here...'
+                background_color: 1, 1, 1, 1
+                foreground_color: 0, 0, 0, 1
+                font_size: 15
+                padding: 15
+                on_touch_down: app.first_clear()
+                # Add a subtle border
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+
+            # Button row
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 0.3
+                spacing: 10
+
+                Button:
+                    id: submitter
+                    text: 'Submit'
+                    size_hint_x: 0.3
+                    background_color: 0.2, 0.6, 0.8, 1
+                    color: 1, 1, 1, 1
+                    bold: True
+                    on_press: app.submit()
+
+                Button:
+                    id: vsession
+                    text: 'Push to Talk'
+                    size_hint_x: 0.5
+                    background_color: 0.5, 0.5, 0.7, 1
+                    color: 1, 1, 1, 1
+                    bold: True
+                    on_press: app.voicemode_toggle()
+
+                Button:
+                    id: switcher
+                    text: 'Settings'
+                    size_hint_x: 0.2
+                    background_color: 0.7, 0.7, 0.7, 1
+                    color: 0, 0, 0, 1
+                    bold: True
+                    on_release: Factory.ConfigurationPopup().open()
