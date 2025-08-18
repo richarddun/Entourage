@@ -4,4 +4,4 @@
 *.txt
 all_chat_context.json
 session_tracker.json
-.env
+.env*

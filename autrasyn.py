@@ -8,10 +8,11 @@ import time
 import os
 import json
 try:
-    from dotenv import load_dotenv
-    load_dotenv()
+    from dotenv import dotenv_values
+    env_vars = dotenv_values('.env')
 except ImportError:
-    print("Warning: python-dotenv is not installed, environment variables might not be loaded from .env")
+    print("Warning: python-dotenv is not installed, .env file will not be loaded")
+    env_vars = {}
 
 # create Class to handle integration with Amazon Polly
 class PollyInterface():
@@ -20,8 +21,8 @@ class PollyInterface():
         self.polly = boto3.client(
             'polly',
             region_name='eu-west-1',
-            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+            aws_access_key_id=env_vars.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=env_vars.get('AWS_SECRET_ACCESS_KEY')
         )
         # load configuration from json configuration file
         self.refresh_configuration()
@@ -107,8 +108,11 @@ class AudioInterface():
         # Create a PyAudio object
         self.pa = pyaudio.PyAudio()
         self.recording = False
-        # Initialize OpenAI client with API key from environment
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Initialize OpenAI client with API key from .env file
+        self.client = openai.OpenAI(
+            api_key=env_vars.get("OPENAI_API_KEY"),
+            base_url="https://api.openai.com/v1"
+        )
 
     def stop_record_audio(self):
         self.recording = False

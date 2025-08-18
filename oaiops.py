@@ -2,16 +2,19 @@ import openai
 import os
 import json
 import datetime
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 class AICommunicator():
 
     def __init__(self,memory=False) -> None:
-        # Load environment variables from .env file
-        load_dotenv()
+        # Load environment variables from .env file only
+        env_vars = dotenv_values('.env')
 
-        # Initialize OpenAI client with API key from environment
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # Initialize OpenAI client with API key from .env file
+        self.client = openai.OpenAI(
+            api_key=env_vars.get("OPENAI_API_KEY"),
+            base_url="https://api.openai.com/v1"
+        )
         self.terse = False
         self.load_json_configuration()
         self.reset_prompt_history(memory)
@@ -19,7 +22,8 @@ class AICommunicator():
 
     def reset_prompt_history(self, memory = False):
         if memory is False:
-            self.prompt_history[self.active_session_key] = [{"role":"system","content":f"{self.configuration['system_prompt']}"}]
+            system_prompt = self.get_session_system_prompt()
+            self.prompt_history[self.active_session_key] = [{"role":"system","content":f"{system_prompt}"}]
         else:
             self.remember_last_context()
             #self.prompt_history = [{"role":"system","content":f"{override}"}]
@@ -74,7 +78,8 @@ class AICommunicator():
         try:
             test = self.prompt_history[self.active_session_key]
         except KeyError:
-            self.prompt_history[self.active_session_key] = [{"role":"system","content":f"{self.configuration['system_prompt']}"}]
+            system_prompt = self.get_session_system_prompt()
+            self.prompt_history[self.active_session_key] = [{"role":"system","content":f"{system_prompt}"}]
             self.save_context()
             self.confirm_active_session()
 
@@ -90,8 +95,28 @@ class AICommunicator():
                 self.configuration = json.load(f)
         except FileNotFoundError:
             with open('configuration.json', 'w') as f:
-                json.dump({'system_prompt': 'You are a witty and keen conversationalist.   You try to keep your responses as short as possible  but always try to be friendly and humorous.   You regularly ask questions and make sure to respond with a clear and concise answer.   You are a good listener and a good communicator','voice_id': 'Emma'}, f)
+                json.dump({'system_prompt': 'You are a witty and keen conversationalist.   You try to keep your responses as short as possible  but always try to be friendly and humorous.   You regularly ask questions and make sure to respond with a clear and concise answer.   You are a good listener and a good communicator','voice_id': 'Rachel'}, f)
             self.load_json_configuration()
+
+    def get_session_system_prompt(self):
+        """Get system prompt for the current active session"""
+        try:
+            with open('session_tracker.json', 'r') as f:
+                sessions = json.load(f)
+                session_data = sessions.get(self.active_session_key, {})
+                return session_data.get('system_prompt', self.configuration['system_prompt'])
+        except (FileNotFoundError, KeyError):
+            return self.configuration['system_prompt']
+
+    def get_session_voice_id(self):
+        """Get voice ID for the current active session"""
+        try:
+            with open('session_tracker.json', 'r') as f:
+                sessions = json.load(f)
+                session_data = sessions.get(self.active_session_key, {})
+                return session_data.get('voice_id', self.configuration.get('voice_id', 'Rachel'))
+        except (FileNotFoundError, KeyError):
+            return self.configuration.get('voice_id', 'Rachel')
 
     def get_prompt_history(self):
         return self.prompt_history

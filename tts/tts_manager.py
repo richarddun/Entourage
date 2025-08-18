@@ -51,9 +51,10 @@ class TTSManager:
         :param kwargs: Additional arguments for the TTS client (e.g., API keys)
         :return: TTSManager instance
         """
-        import os
+        from dotenv import dotenv_values
+        env_vars = dotenv_values('.env')
         if provider == "elevenlabs":
-            api_key = kwargs.get("api_key") or os.getenv("ELEVENLABS_API_KEY")
+            api_key = kwargs.get("api_key") or env_vars.get("ELEVENLABS_API_KEY")
             client = ElevenLabsTTSClient(api_key=api_key, model_id=kwargs.get("model_id", "eleven_multilingual_v2"))
             return TTSManager(client, is_streaming=True)
         elif provider == "polly":

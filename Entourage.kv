@@ -18,6 +18,11 @@
             do_scroll_x: False
             do_scroll_y: True
             size_hint_x: 0.7
+            bar_width: 8
+            bar_color: [0.2, 0.5, 0.8, 0.8]
+            bar_inactive_color: [0.5, 0.5, 0.5, 0.3]
+            scroll_type: ['bars']
+            scroll_wheel_distance: 20
 
             GridLayout:
                 id: button_layout
@@ -27,101 +32,237 @@
                 spacing: 5
                 padding: 5
 
-        BoxLayout:
-            orientation: 'vertical'
+        ScrollView:
             size_hint_x: 0.3
-            spacing: 10
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_width: 6
+            bar_color: [0.2, 0.5, 0.8, 0.8]
 
-            Button:
+            BoxLayout:
+                orientation: 'vertical'
                 size_hint_y: None
-                height: 50
-                text: "New Session"
-                background_color: 0.2, 0.7, 0.3, 1
-                on_release: root.add_new_session()
+                height: self.minimum_height
+                spacing: 10
+                padding: 5
 
-            Button:
-                size_hint_y: None
-                height: 50
-                text: "Remove Session"
-                background_color: 0.8, 0.2, 0.2, 1
-                on_release: root.delete_session()
+                Button:
+                    size_hint_y: None
+                    height: 50
+                    text: "New Session"
+                    background_color: 0.2, 0.7, 0.3, 1
+                    on_release: root.add_new_session()
 
-            Button:
-                size_hint_y: None
-                height: 50
-                text: "Save and Return"
-                background_color: 0.2, 0.5, 0.8, 1
-                on_release: root.save_sessions()
+                Button:
+                    size_hint_y: None
+                    height: 50
+                    text: "Remove Session"
+                    background_color: 0.8, 0.2, 0.2, 1
+                    on_release: root.delete_session()
 
-            Widget:
-                size_hint_y: None
-                height: 20
+                Button:
+                    size_hint_y: None
+                    height: 50
+                    text: "Save and Return"
+                    background_color: 0.2, 0.5, 0.8, 1
+                    on_release: root.save_sessions()
 
-            Label:
-                size_hint_y: None
-                height: 30
-                text: "Voice Persona"
-                color: 0, 0, 0, 1
-                bold: True
+                Widget:
+                    size_hint_y: None
+                    height: 20
 
-            Button:
-                id: voicebutton
-                text: 'Emma (en-GB, Default)'
-                size_hint_y: None
-                height: 50
-                background_color: 0.9, 0.9, 0.9, 1
-                color: 0, 0, 0, 1
+                Label:
+                    size_hint_y: None
+                    height: 30
+                    text: "Voice Persona"
+                    color: 0.2, 0.2, 0.2, 1
+                    bold: True
+
+                Button:
+                    id: voicebutton
+                    text: 'Rachel (Default)'
+                    size_hint_y: None
+                    height: 50
+                    background_color: 0.3, 0.3, 0.3, 1
+                    color: 1, 1, 1, 1
+
+                    Widget:
+                        size_hint_y: None
+                        height: 15
+
+                    Label:
+                        size_hint_y: None
+                        height: 30
+                        text: "Voice Effects"
+                        color: 0.2, 0.2, 0.2, 1
+                        bold: True
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint_y: None
+                        height: 40
+                        spacing: 10
+
+                        Label:
+                            text: "Emotion"
+                            size_hint_x: 0.3
+                            color: 0.2, 0.2, 0.2, 1
+
+                        Slider:
+                            id: stability_slider
+                            min: 0
+                            max: 1
+                            value: 0.5
+                            size_hint_x: 0.7
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint_y: None
+                        height: 40
+                        spacing: 10
+
+                        Label:
+                            text: "Speed"
+                            size_hint_x: 0.3
+                            color: 0.2, 0.2, 0.2, 1
+
+                        Slider:
+                            id: speed_slider
+                            min: 0.7
+                            max: 1.2
+                            value: 1.0
+                            size_hint_x: 0.7
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint_y: None
+                        height: 40
+                        spacing: 10
+
+                        Label:
+                            text: "Style"
+                            size_hint_x: 0.3
+                            color: 0.2, 0.2, 0.2, 1
+
+                        Slider:
+                            id: style_slider
+                            min: 0
+                            max: 1
+                            value: 0.0
+                            size_hint_x: 0.7
+
+                Widget:
+                    size_hint_y: None
+                    height: 20
+
+                Label:
+                    size_hint_y: None
+                    height: 30
+                    text: "System Prompt"
+                    color: 0.2, 0.2, 0.2, 1
+                    bold: True
+
+                TextInput:
+                    id: system_prompt_input
+                    size_hint_y: None
+                    height: 150
+                    multiline: True
+                    background_color: 1, 1, 1, 1
+                    foreground_color: 0, 0, 0, 1
+                    font_size: 14
+                    padding: 10
+                    text: "You are a witty and keen conversationalist. You try to keep your responses as short as possible but always try to be friendly and humorous."
+                    canvas.before:
+                        Color:
+                            rgba: 0.8, 0.8, 0.8, 1
+                        Line:
+                            width: 1
+                            rectangle: self.x, self.y, self.width, self.height
+
+                Button:
+                    size_hint_y: None
+                    height: 40
+                    text: "Reset to Default"
+                    background_color: 0.6, 0.6, 0.6, 1
+                    color: 1, 1, 1, 1
+                    on_release: root.reset_system_prompt()
+
+                Widget:
+                    size_hint_y: None
+                    height: 10
 
 <VoiceConfigButton@Button>:
     size_hint_y: None
     height: 50
-    background_color: 0.95, 0.95, 0.95, 1
-    color: 0, 0, 0, 1
+    background_color: 0.25, 0.25, 0.25, 1
+    color: 1, 1, 1, 1
 
 <CustomDropDown>:
     auto_width: False
-    width: 200
+    width: 250
 
     VoiceConfigButton:
-        text: 'Niamh (en-IE)'
+        text: '👤 Regular Voices'
+        disabled: True
+        background_color: 0.4, 0.4, 0.4, 1
+
+    VoiceConfigButton:
+        text: 'Rachel (Default)'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Emma (en-GB, Default)'
+        text: 'Adam'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Arthur (en-GB)'
+        text: 'Matilda'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Kajal (en-IN)'
+        text: 'Ana'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Aria (en-NZ)'
+        text: '🎭 Character Voices'
+        disabled: True
+        background_color: 0.4, 0.4, 0.4, 1
+
+    VoiceConfigButton:
+        text: '🧙‍♂️ Old Wizard'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text : 'Ayanda (en-ZA)'
+        text: '🤖 Android X.Y.Z.'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Ruth (en-US)'
+        text: '🧚‍♀️ Seer Morganna'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Stephen (en-US)'
+        text: '🎪 Timmy Medieval'
         on_release: root.select(self.text)
 
     VoiceConfigButton:
-        text: 'Kevin (en-US)'
+        text: '🐭 Michael Mouse'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: '👹 Evil Witch'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: '🌟 Kawaii Aerisita'
+        on_release: root.select(self.text)
+
+    VoiceConfigButton:
+        text: '😂 Lutz Laugh'
         on_release: root.select(self.text)
 
 <ChattorFlow>:
     canvas.before:
         Color:
-            rgba: 0.95, 0.95, 0.97, 1  # Light gray background
+            rgba: 0.61, 0.88, 0.62, 0.8  # Light gray background
         Rectangle:
             pos: self.pos
             size: self.size
@@ -131,23 +272,38 @@
         padding: 10
         spacing: 10
 
-        # Chat display area
-        TextInput:
-            id: outputwidget
+        # Chat display area with scrollable view
+        ScrollView:
+            id: scroll_view
             size_hint_y: 0.7
-            text: 'Welcome to Entourage! How can I assist you today?'
-            readonly: True
-            background_color: 1, 1, 1, 1
-            foreground_color: 0, 0, 0, 1
-            font_size: 16
-            padding: 15
-            # Add a subtle border
-            canvas.before:
-                Color:
-                    rgba: 0.8, 0.8, 0.8, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_width: 10
+            bar_color: [0.2, 0.5, 0.8, 0.8]
+            bar_inactive_color: [0.5, 0.5, 0.5, 0.3]
+            scroll_type: ['bars']
+
+            TextInput:
+                id: outputwidget
+                size_hint_y: None
+                height: max(self.minimum_height, scroll_view.height)
+                text: ''
+                readonly: True
+                background_color: 1, 1, 1, 1
+                foreground_color: 0, 0, 0, 1
+                font_size: 16
+                padding: 15
+                multiline: True
+                text_size: self.width - 30, None
+                selection_color: [0, 0, 0, 0]
+                cursor_color: [0, 0, 0, 0]
+                # Add a subtle border
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 0.8, 0.8, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
 
         # Input area
         BoxLayout:
@@ -155,7 +311,7 @@
             size_hint_y: 0.3
             spacing: 10
 
-            TextInput:
+            NoSelectTextInput:
                 id: inputwidget
                 size_hint_y: 0.7
                 text: 'Type your message here...'
@@ -164,6 +320,7 @@
                 font_size: 15
                 padding: 15
                 on_touch_down: app.first_clear()
+                multiline: False
                 # Add a subtle border
                 canvas.before:
                     Color:
@@ -186,6 +343,13 @@
                     color: 1, 1, 1, 1
                     bold: True
                     on_press: app.submit()
+                    canvas.before:
+                        PushMatrix
+                        Rotate:
+                            angle: self.angle if hasattr(self, 'angle') else 0
+                            origin: self.center
+                    canvas.after:
+                        PopMatrix
 
                 Button:
                     id: vsession
@@ -200,7 +364,7 @@
                     id: switcher
                     text: 'Settings'
                     size_hint_x: 0.2
-                    background_color: 0.7, 0.7, 0.7, 1
-                    color: 0, 0, 0, 1
+                    background_color: 0.4, 0.4, 0.4, 1
+                    color: 1, 1, 1, 1
                     bold: True
                     on_release: Factory.ConfigurationPopup().open()
