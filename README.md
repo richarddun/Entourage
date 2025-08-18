@@ -1,184 +1,270 @@
-# Entourage
+# Entourage 🎭
 
-A cross-platform, voice-enabled chat client for OpenAI's GPT-3.5-turbo.
+A sophisticated AI chat companion with character voices, session management, and educational features. Built for cross-platform deployment with a focus on voice interaction and character-based learning.
 
 <p align="center">
-  <img src="gpt-client.png" alt="Entourage Screenshot" width="600"/>
+  <img src="gpt-client.png" alt="Entourage Screenshot" width="700"/>
 </p>
 
-## Table of Contents
+## ✨ Features
 
-- [About](#about)
-- [Features](#features)
-- [Demo](#demo)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [Roadmap](#roadmap)
-- [Acknowledgements](#acknowledgements)
+### 🎯 **Core Chat Experience**
+- **GPT-4 Mini Integration**: Powered by OpenAI's latest model for intelligent conversations
+- **Real-time Streaming**: Watch AI responses appear in real-time as they're generated
+- **Session Management**: Create unlimited chat sessions with different personas and contexts
+- **Conversation History**: Automatic saving and restoration of all conversations
+- **Smart Context**: Each session maintains its own conversation memory and settings
 
-## About
+### 🎭 **Character Voice System**
+- **ElevenLabs Integration**: Premium AI voice synthesis with character personalities
+- **Character Voices**: Choose from wizards, robots, fairies, and more for engaging conversations
+- **Voice Effects**: Real-time control over emotion, speed, and style
+- **Per-Session Voices**: Each session can have its own unique character voice
+- **Educational Characters**: Perfect for teaching kids about AI and different personas
 
-**Entourage** is a cross-platform, voice-enabled desktop (and mobile-ready) chat client for OpenAI's GPT-3.5-turbo.
-With integrated voice input (via OpenAI Whisper) and voice output (via Amazon Polly), session management, automatic summarization, and persistent conversation memory, Entourage brings a conversational AI assistant experience to your desktop or mobile device.
+### 🎤 **Advanced Voice Features**
+- **Voice Input**: Speak naturally using OpenAI Whisper transcription
+- **Push-to-Talk**: Simple voice input with visual feedback
+- **Voice Output**: High-quality speech synthesis with character personalities
+- **Automatic Summarization**: Long responses are intelligently summarized for voice output
 
-> **⚠️ Note:** This application uses the OpenAI and AWS APIs, which may incur usage charges under your accounts.
+### ⚙️ **Customization & Control**
+- **Per-Session System Prompts**: Customize AI behavior for different use cases
+- **Voice Manipulation**: Adjust emotion, speed, and style in real-time
+- **Session-Specific Settings**: Each session remembers its voice and prompt settings
+- **Visual Themes**: Clean, modern interface with accessibility in mind
 
-## Features
+## 🎯 **Perfect for Education**
 
-- **Chat with GPT-3.5-turbo**: Natural language conversation powered by OpenAI.
-- **Voice Input**: Speak your prompts using OpenAI Whisper for transcription.
-- **Voice Output**: Listen to AI responses via Amazon Polly (neural voices).
-- **Session Management**: Create and switch between multiple chat sessions.
-- **Conversation Memory**: Optional context memory to continue conversations across sessions.
-- **Summarization**: Automatically summarize long responses for natural speech.
-- **Configuration**: Customize the assistant's system prompt and voice persona.
-- **Cross-Platform**: Built with [Kivy](https://kivy.org), targeting Linux, macOS, Windows, iOS, and Android.
-- **Persistent Logs**: Export chat logs and session context for later review.
+Entourage is designed with educational use in mind, especially for teaching children about AI:
 
-## Demo
+- **Character-Based Learning**: Different AI personalities for different subjects
+- **Prompt Engineering**: Learn how different prompts create different AI behaviors
+- **Voice Experimentation**: Understand how voice affects communication
+- **Safe Environment**: Controlled, educational AI interactions
 
-![Entourage Chat Demo](gpt-client.png)
+## 🚀 **Quick Start**
 
-## Prerequisites
+### Prerequisites
 
-- **Python**: Version 3.7 or higher.
-- **OpenAI API key**: Set in `.env` file or environment variable.
-- **AWS credentials**: Set in `.env` file or environment variable (with Amazon Polly access).
-- **PortAudio** development libraries (for PyAudio).
-- **FFmpeg** (for audio conversion with pydub).
+- **Python 3.7+**
+- **OpenAI API Key** (for GPT-4 and Whisper)
+- **ElevenLabs API Key** (for character voices, free tier available)
+- **System Audio** (PortAudio and FFmpeg)
 
 ### System Dependencies
 
-**Ubuntu / Debian**:
-
+**Ubuntu/Debian:**
 ```bash
 sudo apt update
-sudo apt install ffmpeg libportaudio2 libportaudiocpp0 portaudio19-dev
+sudo apt install ffmpeg libportaudio2 libportaudiocpp0 portaudio19-dev python3-dev
 ```
 
-**macOS (Homebrew)**:
-
+**macOS:**
 ```bash
 brew install ffmpeg portaudio
 ```
 
-**Windows**:
+**Windows:**
+- Install FFmpeg from https://ffmpeg.org/
+- Install Microsoft Visual C++ Build Tools
 
-> - Install FFmpeg from https://ffmpeg.org/
-> - Install PortAudio development files (e.g., via vcpkg or manual download).
+### Installation
 
-## Installation
-
-1. Clone the repository:
-
+1. **Clone and Setup:**
    ```bash
-   git clone https://github.com/richarddun/gpt-client.git
-   cd gpt-client
-   ```
-
-2. (Optional) Create and activate a virtual environment:
-
-   ```bash
+   git clone https://github.com/richarddun/entourage.git
+   cd entourage
    python3 -m venv .venv
-   source .venv/bin/activate
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    ```
 
-3. Install Python dependencies:
-
+2. **Install Dependencies:**
    ```bash
-   pip install openai boto3 kivy pydub pyaudio python-dotenv
+   pip install -r requirements.txt
    ```
 
-## Configuration
+3. **Configure API Keys:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your API keys:
+   # OPENAI_API_KEY=your_openai_key_here
+   # ELEVENLABS_API_KEY=your_elevenlabs_key_here
+   ```
 
-### Environment Variables
+4. **Run Entourage:**
+   ```bash
+   python main_app.py
+   ```
 
-Create a `.env` file in the project root with your API keys:
+## 🎭 **Character Voices**
 
-```bash
-cp .env.example .env
+### Regular Voices
+- **Rachel** - Friendly, popular female voice (default)
+- **Adam** - Confident, professional male voice
+- **Matilda** - Warm, engaging female voice
+- **Ana** - Expressive British female voice
+
+### Character Voices
+- **🧙‍♂️ Old Wizard** - Wise magical mentor for fantasy learning
+- **🤖 Android X.Y.Z.** - Futuristic AI robot for tech topics
+- **🧚‍♀️ Seer Morganna** - Mystical fortune teller for creative stories
+- **🎪 Timmy Medieval** - Young energetic character for history
+- **🐭 Michael Mouse** - Comic character for humor and entertainment
+- **👹 Evil Witch** - Villain voice for storytelling contrast
+- **🌟 Kawaii Aerisita** - Adorable anime-style for younger audiences
+- **😂 Lutz Laugh** - Giggly character for comedic interactions
+
+## 📚 **Educational Use Cases**
+
+### Subject-Specific Sessions
+```
+"Math Tutor" → Rachel voice → "You are a patient math tutor..."
+"History Guide" → 🧙‍♂️ Wizard → "You are Merlin, teaching history through magical stories..."
+"Science Lab" → 🤖 Android → "You are a friendly AI scientist explaining concepts..."
+"Creative Writing" → 🧚‍♀️ Morganna → "You help craft engaging stories and characters..."
 ```
 
-Then edit `.env` to add your actual keys:
+### Voice Effects for Learning
+- **Slow + Emotional**: Perfect for dramatic storytelling
+- **Fast + Stable**: Great for quick facts and reviews  
+- **High Style**: Exaggerated character voices for engagement
+- **Natural Style**: Normal conversation mode
 
-```bash
-OPENAI_API_KEY=your_openai_api_key_here
-AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
-AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key_here
-```
+## ⚙️ **Configuration**
 
-Alternatively, you can set them as environment variables:
+### Session Management
+- Create unlimited sessions with unique names
+- Each session maintains its own:
+  - Conversation history
+  - System prompt (AI personality)
+  - Voice character and effects
+  - Voice manipulation settings
 
-```bash
-export OPENAI_API_KEY=your_openai_api_key
-export AWS_ACCESS_KEY_ID=your_aws_access_key
-export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-```
+### Voice Settings
+- **Emotion Slider**: Control emotional range vs consistency
+- **Speed Control**: Adjust speaking pace (0.7x to 1.2x)
+- **Style Enhancement**: Natural to highly stylized character voices
 
-### Application Configuration
-
-Configure `configuration.json` to tune the assistant:
-
+### System Prompts
+Customize AI behavior per session:
 ```json
 {
-  "system_prompt": "You are a witty and keen conversationalist.   You try to keep your responses as short as possible but always try to be friendly and humorous. You regularly ask questions and make sure to respond with a clear and concise answer. You are a good listener and a good communicator.",
-  "voice_id": "Emma"
+  "Creative Writer": "You are an imaginative storyteller who helps craft engaging narratives...",
+  "Code Reviewer": "You are a senior software engineer who provides detailed code reviews...",
+  "Language Tutor": "You are a patient language teacher who explains grammar clearly..."
 }
 ```
 
-## Usage
+## 📱 **Mobile Ready**
 
-Launch Entourage:
+Built with Kivy for cross-platform deployment:
+- **Android**: Package with Buildozer for APK distribution
+- **Touch Optimized**: All controls work well on tablets and phones  
+- **Offline Sessions**: Conversation history stored locally
+- **Cloud Sync**: All AI processing happens in the cloud
 
+## 🛠️ **Technical Architecture**
+
+### Core Technologies
+- **Frontend**: Kivy (Python) - Cross-platform UI framework
+- **AI**: OpenAI GPT-4 Mini with streaming responses
+- **Voice Input**: OpenAI Whisper for speech-to-text
+- **Voice Output**: ElevenLabs for premium AI voice synthesis
+- **Audio**: PyAudio + pydub for real-time audio processing
+
+### Key Features
+- **Streaming Responses**: Real-time text generation with immediate voice cutover
+- **Session Persistence**: JSON-based storage for conversations and settings
+- **Voice Manipulation**: Real-time control of voice characteristics
+- **Error Handling**: Graceful fallbacks and user-friendly error messages
+
+## 🔧 **Troubleshooting**
+
+### Common Issues
+
+**No Voice Output:**
+- Verify ElevenLabs API key is valid and has credits
+- Check internet connection
+- Ensure audio system is working
+
+**Voice Input Not Working:**
+- Test microphone permissions
+- Check PortAudio installation
+- Verify OpenAI Whisper API access
+
+**Character Names Show as "Assistant":**
+- Restart app to reload session settings
+- Check that session voice settings are saved properly
+
+### System-Specific
+
+**Linux Audio Issues:**
 ```bash
-python base.py
+# Install additional ALSA libraries if needed
+sudo apt install libasound2-dev
 ```
 
-Or via the Kivy launcher:
-
+**Windows PyAudio:**
 ```bash
-kivy base.py
+# May need Microsoft Visual C++ 14.0
+pip install pipwin
+pipwin install pyaudio
 ```
 
-- **Submit**: Type your prompt in the input box and click **Submit**.
-- **Push to Talk**: Click and hold **Push to Talk**, speak your prompt, and release.
-- **Settings**: Open **Settings** to switch sessions or select a voice persona.
+## 🚀 **Roadmap**
 
-Conversation data is saved to:
+### Near Term
+- [ ] Android APK packaging with Buildozer
+- [ ] More character voices and personalities
+- [ ] Voice cloning for custom characters
+- [ ] Conversation export formats (PDF, HTML)
 
-- `session_tracker.json` (active sessions)
-- `all_chat_context.json` (persistent chat memory)
-- `chat_log.txt` (exported logs)
+### Future Features
+- [ ] Multi-language character voices
+- [ ] Screen sharing for visual learning
+- [ ] Plugin system for custom characters
+- [ ] Collaborative sessions (multiple users)
+- [ ] Learning progress tracking
 
-## Contributing
+## 🤝 **Contributing**
 
-Contributions, issues, and feature requests are welcome! Please follow these steps:
+We welcome contributions! Areas of focus:
 
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/YourFeature`).
-3. Commit your changes (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature/YourFeature`).
-5. Open a pull request.
+- **Character Development**: New voice personas and educational characters
+- **Mobile Optimization**: Android/iOS specific improvements
+- **Educational Features**: Learning progress, parental controls
+- **Voice Quality**: Enhanced voice effects and manipulation
+- **Documentation**: Tutorials, guides, and examples
 
-## Troubleshooting
+### Development Setup
+```bash
+git clone https://github.com/richarddun/entourage.git
+cd entourage
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+python main_app.py
+```
 
-- **PyAudio installation errors**: Ensure PortAudio headers and libraries are installed.
-- **FFmpeg errors**: Verify FFmpeg is installed and accessible in your `PATH`.
-- **AWS / Polly errors**: Confirm AWS credentials and permissions.
-- **OpenAI API errors**: Check that `OPENAI_API_KEY` is set correctly.
+## 📄 **License**
 
-## Roadmap
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- Improve voice transcription accuracy and multi-language support.
-- Mobile packaging for Android and iOS.
-- Plugin architecture for extended capabilities.
+## 🙏 **Acknowledgments**
 
-## Acknowledgements
+- **OpenAI** - GPT-4, Whisper, and the foundation of modern AI
+- **ElevenLabs** - Revolutionary AI voice synthesis technology
+- **Kivy** - Enabling truly cross-platform Python applications
+- **Community** - Voice actors and character designers who inspire our personas
 
-- [OpenAI](https://openai.com/) for GPT and Whisper APIs.
-- [Amazon Polly](https://aws.amazon.com/polly/) for neural text-to-speech.
-- [Kivy](https://kivy.org/) for the cross-platform UI framework.
+## 💡 **Support**
+
+- **Issues**: Report bugs and request features on GitHub
+- **Discord**: Join our community for support and discussion
+- **Documentation**: Full guides at [docs.entourage.ai](https://docs.entourage.ai)
+- **Educational Resources**: Teaching guides and lesson plans available
+
+---
+
+**Transform learning with AI conversations. Give every subject its own voice.** 🎭✨
