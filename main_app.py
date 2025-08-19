@@ -61,6 +61,31 @@ class NoSelectTextInput(TextInput):
             return True
         return super().on_touch_move(touch)
 
+class SmartTextInput(NoSelectTextInput):
+    """TextInput that handles Enter to submit and Shift+Enter for new line"""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.multiline = True
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        key, key_str = keycode
+
+        if key_str == 'enter':
+            if 'shift' in modifiers:
+                # Shift+Enter: Insert new line
+                cursor_pos = self.cursor_index()
+                self.text = self.text[:cursor_pos] + '\n' + self.text[cursor_pos:]
+                self.cursor = self.get_cursor_from_index(cursor_pos + 1)
+                return True
+            else:
+                # Enter: Submit (call the app's submit method)
+                app = App.get_running_app()
+                if app and hasattr(app, 'submit'):
+                    app.submit()
+                return True
+
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
+
 class ReadOnlyTextInput(TextInput):
     """Read-only TextInput that doesn't allow selection or cursor"""
     def on_touch_down(self, touch):
@@ -140,24 +165,24 @@ class EntourageApp(App):
 
     def _initialize_tts_manager(self):
         """Initialize TTS manager with ElevenLabs first, Polly fallback"""
-        # Try ElevenLabs first
+        # Try ElevenLabs first with improved audio player
         elevenlabs_manager = None
         try:
-            elevenlabs_manager = TTSManager.from_config("elevenlabs")
+            elevenlabs_manager = TTSManager.from_config("elevenlabs", player_type="optimized")
             # Test ElevenLabs with a short phrase to verify credentials
             if self._test_tts_provider(elevenlabs_manager, "elevenlabs"):
-                print("ElevenLabs TTS initialized and tested successfully")
+                print("ElevenLabs TTS initialized with optimized audio player - should eliminate choppy playback")
                 return elevenlabs_manager
             else:
                 print("ElevenLabs TTS failed authentication test, falling back to Polly")
         except Exception as e:
             print(f"ElevenLabs TTS initialization failed: {e}, falling back to Polly")
 
-        # Try Polly as fallback
+        # Try Polly as fallback with improved audio player
         try:
-            polly_manager = TTSManager.from_config("polly")
+            polly_manager = TTSManager.from_config("polly", player_type="optimized")
             if self._test_tts_provider(polly_manager, "polly"):
-                print("Polly TTS initialized and tested successfully")
+                print("Polly TTS initialized with optimized audio player")
                 return polly_manager
             else:
                 print("Polly TTS failed authentication test, using original PollyInterface")
@@ -527,8 +552,6 @@ class EntourageApp(App):
             # Confirm active session and load history - ensure session is fully loaded
             self.oai.confirm_active_session()
 
-
-
             history = self.get_conversation_history()
 
             if history and history.strip():
@@ -541,7 +564,7 @@ class EntourageApp(App):
                 # No history, show welcome message with character name
                 voice_id = self._get_voice_id()
                 character_name = self._get_character_display_name(voice_id)
-                root.ids.outputwidget.text = f'Welcome to Entourage! I am {character_name}. How can I assist you today?'
+                root.ids.outputwidget.text = f'New session start'
                 print(f"Started new conversation in session: {self.oai.active_session_key} with character: {character_name}")
         except Exception as e:
             print(f"Error initializing conversation display: {e}")
@@ -683,6 +706,7 @@ class CustomDropDown(DropDown):
 
 # Register custom TextInput classes with Factory
 Factory.register('NoSelectTextInput', cls=NoSelectTextInput)
+Factory.register('SmartTextInput', cls=SmartTextInput)
 Factory.register('ReadOnlyTextInput', cls=ReadOnlyTextInput)
 Factory.register('NoTrackToggleButton', cls=NoTrackToggleButton)
 
